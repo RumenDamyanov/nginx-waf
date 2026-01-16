@@ -908,7 +908,7 @@ ngx_http_waf_get_client_ip(ngx_http_request_t *r, u_char *buf, size_t len)
 #endif
 
     default:
-        ngx_cpymem(buf, "unknown", 7);
+        (void) ngx_cpymem(buf, "unknown", 7);
         buf[7] = '\0';
         return buf;
     }
