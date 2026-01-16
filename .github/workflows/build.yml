@@ -1,0 +1,43 @@
+name: Build
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [master, main, develop]
+  pull_request:
+    branches: [master, main, develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NGINX_VERSION: "1.27.0"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential wget gcc file
+
+      - name: Download and extract NGINX source
+        run: |
+          set -euxo pipefail
+          wget -nv https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz
+          tar xzf nginx-${NGINX_VERSION}.tar.gz
+
+      - name: Build dynamic module
+        run: |
+          set -euxo pipefail
+          cd nginx-${NGINX_VERSION}
+          ./configure --add-dynamic-module=$GITHUB_WORKSPACE/src --with-compat
+          make modules -j$(nproc)
+
+      - name: Verify module
+        run: |
+          MOD=nginx-${NGINX_VERSION}/objs/ngx_http_waf_module.so
+          test -f "$MOD" || { echo "Module .so not found"; exit 1; }
+          file "$MOD"

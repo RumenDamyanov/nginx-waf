@@ -1,0 +1,125 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Git tag (e.g. v0.2.1) to build'
+        required: true
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { ubuntu: "jammy", nginx: "1.26.3", arch: "amd64" }
+          - { ubuntu: "jammy", nginx: "1.27.0", arch: "amd64" }
+          - { ubuntu: "noble", nginx: "1.26.3", arch: "amd64" }
+          - { ubuntu: "noble", nginx: "1.27.0", arch: "amd64" }
+          - { ubuntu: "jammy", nginx: "1.27.0", arch: "arm64" }
+          - { ubuntu: "noble", nginx: "1.27.0", arch: "arm64" }
+
+    name: Build ${{ matrix.ubuntu }}-nginx${{ matrix.nginx }}-${{ matrix.arch }}
+    env:
+      NGINX_VERSION: ${{ matrix.nginx }}
+      UBUNTU_CODENAME: ${{ matrix.ubuntu }}
+      TARGET_ARCH: ${{ matrix.arch }}
+
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Set version
+        id: version
+        run: |
+          VERSION="${{ inputs.tag }}"
+          VERSION="${VERSION#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Set up QEMU (for ARM64)
+        if: matrix.arch == 'arm64'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Determine base image
+        id: base
+        run: |
+          case "${UBUNTU_CODENAME}" in
+            jammy) echo "image=ubuntu:22.04" >> $GITHUB_OUTPUT ;;
+            noble) echo "image=ubuntu:24.04" >> $GITHUB_OUTPUT ;;
+            *) echo "Unknown codename"; exit 1 ;;
+          esac
+
+      - name: Build module
+        run: |
+          set -euxo pipefail
+          PLATFORM="linux/${TARGET_ARCH}"
+          docker run --platform="$PLATFORM" --rm -v "$PWD":/workspace -w /workspace ${{ steps.base.outputs.image }} /bin/bash -c "\
+            set -euxo pipefail; \
+            apt-get update; \
+            DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential wget ca-certificates file; \
+            wget -nv https://nginx.org/download/nginx-$\{NGINX_VERSION\}.tar.gz\; \
+            tar xzf nginx-${NGINX_VERSION}.tar.gz; \
+            cd nginx-${NGINX_VERSION}; \
+            ./configure --add-dynamic-module=/workspace/src --with-compat; \
+            make modules -j\$(nproc); \
+            cp objs/ngx_http_waf_module.so /workspace/; \
+            file objs/ngx_http_waf_module.so; \
+          "
+
+      - name: Package artifact
+        run: |
+          set -euxo pipefail
+          FN_BASE=nginx-waf_${VERSION}_nginx${NGINX_VERSION}_${UBUNTU_CODENAME}_${TARGET_ARCH}
+          mkdir -p pkg
+          cp LICENSE.md README.md CHANGELOG.md pkg/ || true
+          cp conf/examples.conf pkg/ || true
+          cp -r lists pkg/ || true
+          cp ngx_http_waf_module.so pkg/
+          tar czf ${FN_BASE}.tar.gz -C pkg .
+          sha256sum ${FN_BASE}.tar.gz > ${FN_BASE}.sha256
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.nginx }}-${{ matrix.ubuntu }}-${{ matrix.arch }}
+          path: |
+            *.tar.gz
+            *.sha256
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build-release
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: nginx-waf ${{ inputs.tag }}
+          prerelease: ${{ inputs.prerelease }}
+          generate_release_notes: true
+          files: |
+            artifacts/*.tar.gz
+            artifacts/*.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

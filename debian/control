@@ -1,0 +1,32 @@
+Source: nginx-waf
+Section: web
+Priority: optional
+Maintainer: Rumen Damyanov <contact@rumenx.com>
+Build-Depends: debhelper-compat (= 13),
+               gcc
+Standards-Version: 4.6.2
+Homepage: https://github.com/RumenDamyanov/nginx-waf
+Vcs-Git: https://github.com/RumenDamyanov/nginx-waf.git
+Vcs-Browser: https://github.com/RumenDamyanov/nginx-waf
+Rules-Requires-Root: no
+
+Package: nginx-waf
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
+Recommends: nginx (>= 1.18.0)
+Description: NGINX dynamic module for IP-based Web Application Firewall
+ This NGINX module provides IP/CIDR-based access control with named lists,
+ tag-based organization, and flexible blacklist/whitelist modes.
+ .
+ Features:
+  * Multiple named IP lists with tags for organization
+  * Blacklist mode: block matched IPs, allow others
+  * Whitelist mode: allow only matched IPs, block others
+  * IPv4 and IPv6 support with CIDR ranges
+  * Per-context configuration (http, server, location)
+  * Radix tree-based O(1) IP lookups
+  * Dynamic module loading (no NGINX recompilation needed)
+ .
+ The module uses nginx's native radix tree implementation for fast
+ IP matching and supports configuration inheritance across contexts.

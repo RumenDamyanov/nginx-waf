@@ -1,0 +1,87 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment for verbose build output
+#export DH_VERBOSE=1
+
+# Security hardening flags
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+
+# Use vendored NGINX headers (no nginx-dev dependency needed)
+NGINX_VERSION := 1.27.0
+VENDORED_NGINX := $(CURDIR)/vendor/nginx-$(NGINX_VERSION)
+
+# Module installation directory
+NGINX_MODULEDIR := /usr/lib/nginx/modules
+
+# Module name
+MODULE_NAME := ngx_http_waf_module
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	# Verify vendored headers and pre-generated config exist
+	test -d $(VENDORED_NGINX)/src/core || \
+		(echo "ERROR: Vendored NGINX headers not found. Run: scripts/update-nginx-headers.sh $(NGINX_VERSION)" && exit 1)
+	test -f $(VENDORED_NGINX)/objs/ngx_auto_config.h || \
+		(echo "ERROR: Pre-generated ngx_auto_config.h not found in $(VENDORED_NGINX)/objs/" && exit 1)
+	
+	# No configure step - using pre-generated headers
+	@echo "Using pre-generated Linux-generic headers from $(VENDORED_NGINX)/objs/"
+
+override_dh_auto_build:
+	# Direct gcc compilation using pre-generated headers
+	# nginx-waf has no external library dependencies
+	gcc $(CFLAGS) $(CPPFLAGS) -shared -fPIC -o $(MODULE_NAME).so \
+		-I$(VENDORED_NGINX)/src/core \
+		-I$(VENDORED_NGINX)/src/event \
+		-I$(VENDORED_NGINX)/src/event/modules \
+		-I$(VENDORED_NGINX)/src/http \
+		-I$(VENDORED_NGINX)/src/http/modules \
+		-I$(VENDORED_NGINX)/src/os/unix \
+		-I$(VENDORED_NGINX)/objs \
+		src/$(MODULE_NAME).c \
+		$(LDFLAGS)
+
+override_dh_auto_install:
+	# Install the module .so file
+	install -D -m 0644 \
+		$(MODULE_NAME).so \
+		debian/nginx-waf$(NGINX_MODULEDIR)/$(MODULE_NAME).so
+	
+	# Install example configuration
+	install -D -m 0644 conf/examples.conf \
+		debian/nginx-waf/usr/share/doc/nginx-waf/examples/examples.conf
+	
+	# Install sample lists
+	install -D -m 0644 lists/example-blacklist.txt \
+		debian/nginx-waf/usr/share/doc/nginx-waf/examples/lists/example-blacklist.txt
+	install -D -m 0644 lists/example-whitelist.txt \
+		debian/nginx-waf/usr/share/doc/nginx-waf/examples/lists/example-whitelist.txt
+	
+	# Install documentation
+	install -D -m 0644 README.md \
+		debian/nginx-waf/usr/share/doc/nginx-waf/README.md
+	install -D -m 0644 LICENSE.md \
+		debian/nginx-waf/usr/share/doc/nginx-waf/LICENSE
+
+override_dh_auto_clean:
+	# Clean build artifacts
+	rm -f $(MODULE_NAME).so
+	dh_auto_clean
+
+override_dh_installdocs:
+	dh_installdocs
+	# Add note about module loading
+	echo "To load this module, add to /etc/nginx/nginx.conf (top-level):" > debian/nginx-waf/usr/share/doc/nginx-waf/INSTALL
+	echo "load_module modules/$(MODULE_NAME).so;" >> debian/nginx-waf/usr/share/doc/nginx-waf/INSTALL
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym
+
+# Don't run tests (requires running NGINX instance)
+override_dh_auto_test:
+	@echo "Skipping tests (requires NGINX runtime)"

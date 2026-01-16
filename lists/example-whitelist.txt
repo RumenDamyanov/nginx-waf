@@ -1,0 +1,29 @@
+# nginx-waf Example Whitelist
+#
+# This is an example IP list for whitelist mode.
+# Only IPs in this list will be allowed access.
+#
+# Use with:
+#   waf on;
+#   waf_mode whitelist;
+#   waf_enable_lists trusted;
+#
+
+# Loopback (localhost)
+127.0.0.1
+::1
+
+# Private networks (internal access)
+10.0.0.0/8
+172.16.0.0/12
+192.168.0.0/16
+
+# IPv6 private/local
+fc00::/7
+fe80::/10
+
+# Example: Your office IP
+# 203.0.113.50
+
+# Example: Partner network
+# 198.51.100.0/24

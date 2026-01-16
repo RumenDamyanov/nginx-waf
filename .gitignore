@@ -1,0 +1,66 @@
+# Build artifacts
+*.so
+*.o
+*.a
+*.la
+*.lo
+build/
+dist/
+objs/
+
+# Development directories (not tracked)
+.development/
+.obs/
+docs/
+wiki/
+vendor/
+scripts/
+
+# Editor files
+.vscode/
+.cursor/
+.cursorrules
+.idea/
+.ai/
+*.swp
+*.swo
+*~
+.*.swp
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Package artifacts
+*.rpm
+*.deb
+*.tar.gz
+*.tar.xz
+*.tar.bz2
+*.orig.tar.*
+*.debian.tar.*
+*.dsc
+
+# Test artifacts
+test-results/
+coverage/
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# nginx source (downloaded for building)
+nginx-*/
+
+# Valgrind output
+valgrind*.log
+massif.*
+

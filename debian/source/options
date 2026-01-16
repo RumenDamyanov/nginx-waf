@@ -1,0 +1,7 @@
+tar-ignore = ".git"
+tar-ignore = ".gitignore"
+tar-ignore = ".development"
+tar-ignore = ".cursor"
+tar-ignore = "build"
+tar-ignore = "dist"
+tar-ignore = "*.so"

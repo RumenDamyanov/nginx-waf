@@ -1,0 +1,21 @@
+nginx-waf (0.2.1-1) unstable; urgency=medium
+
+  * Core module implementation complete
+  * Multiple named IP lists with tag support
+  * Blacklist and whitelist modes
+  * IPv4/IPv6 support with CIDR ranges
+  * Per-context configuration (http, server, location)
+  * waf_enable_lists and waf_disable_lists directives
+  * Enhanced logging with client IP and matched list name
+  * Input validation for list/tag names
+
+ -- Rumen Damyanov <contact@rumenx.com>  Thu, 16 Jan 2026 12:00:00 +0000
+
+nginx-waf (0.1.0-1) unstable; urgency=low
+
+  * Initial release
+  * Basic waf on/off directive
+  * waf_mode blacklist/whitelist directive
+  * waf_log_prefix directive
+
+ -- Rumen Damyanov <contact@rumenx.com>  Fri, 24 Dec 2025 12:00:00 +0000
