@@ -897,16 +897,20 @@ ngx_http_waf_get_client_ip(ngx_http_request_t *r, u_char *buf, size_t len)
 
     case AF_INET:
         sin = (struct sockaddr_in *) r->connection->sockaddr;
-        return ngx_inet_ntop(AF_INET, &sin->sin_addr, buf, len);
+        ngx_inet_ntop(AF_INET, &sin->sin_addr, buf, len);
+        return buf;
 
 #if (NGX_HAVE_INET6)
     case AF_INET6:
         sin6 = (struct sockaddr_in6 *) r->connection->sockaddr;
-        return ngx_inet_ntop(AF_INET6, &sin6->sin6_addr, buf, len);
+        ngx_inet_ntop(AF_INET6, &sin6->sin6_addr, buf, len);
+        return buf;
 #endif
 
     default:
-        return ngx_cpymem(buf, "unknown", 7);
+        ngx_cpymem(buf, "unknown", 7);
+        buf[7] = '\0';
+        return buf;
     }
 }
 
