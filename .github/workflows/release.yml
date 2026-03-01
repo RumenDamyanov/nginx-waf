@@ -106,7 +106,7 @@ jobs:
     needs: build-release
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
           merge-multiple: true
