@@ -224,16 +224,16 @@ See **Planned Extensions** section below for details on future companion project
 
 ---
 
-## Planned Extensions
+## Ecosystem
 
-These companion projects are planned for future development after nginx-waf v1.0 is stable. They will be separate repositories.
+Companion projects that extend nginx-waf with management, automation, and integration capabilities:
 
 | Project | Language | Description |
 |---------|----------|-------------|
-| **nginx-waf-api** | Go | REST API daemon for dynamic IP list management without nginx reloads |
-| **nginx-waf-ui** | Go | Web-based dashboard for managing lists, viewing stats, and configuration |
-| **nginx-waf-feeds** | Go | Automatic threat feed updater (Cloudflare, Tor exits, Spamhaus, etc.) |
-| **nginx-waf-lua** | Lua | OpenResty/Lua integration for scripted WAF logic and custom responses |
+| **[nginx-waf-api](https://github.com/RumenDamyanov/nginx-waf-api)** | Go | REST API daemon for dynamic IP list management without nginx reloads |
+| **[nginx-waf-ui](https://github.com/RumenDamyanov/nginx-waf-ui)** | Go | Web-based dashboard for managing lists, viewing stats, and configuration |
+| **[nginx-waf-feeds](https://github.com/RumenDamyanov/nginx-waf-feeds)** | Go | Automatic threat feed updater (Cloudflare, Tor exits, Spamhaus, etc.) |
+| **[nginx-waf-lua](https://github.com/RumenDamyanov/nginx-waf-lua)** | Lua | OpenResty/Lua integration for scripted WAF logic and custom responses |
 
 ### Architecture Overview
 
@@ -263,13 +263,11 @@ These companion projects are planned for future development after nginx-waf v1.0
 
 | Project | Status |
 |---------|--------|
-| nginx-waf | 🟡 In Development |
-| nginx-waf-api | 🔴 Planned |
-| nginx-waf-ui | 🔴 Planned |
-| nginx-waf-feeds | 🔴 Planned |
-| nginx-waf-lua | 🔴 Planned |
-
-> These projects will be started after nginx-waf v1.0 reaches stable release.
+| nginx-waf | 🟡 In Development (v0.2.1) |
+| nginx-waf-api | 🟢 v0.1.0 Released |
+| nginx-waf-ui | 🟢 v0.1.0 Released |
+| nginx-waf-feeds | 🟢 v0.1.0 Released |
+| nginx-waf-lua | 🟢 v0.1.0 Released |
 
 ---
 
@@ -297,8 +295,13 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## Related Projects
 
-- [nginx-torblocker](https://github.com/RumenDamyanov/nginx-torblocker) - Block Tor exit nodes (simpler, single-purpose)
-- [nginx-cf-realip](https://github.com/RumenDamyanov/nginx-cf-realip) - Cloudflare real IP handling
+Other nginx dynamic modules we maintain:
+
+| Module | Description |
+|--------|-------------|
+| **[nginx-torblocker](https://github.com/RumenDamyanov/nginx-torblocker)** | Control access from Tor exit nodes — block, allow, or Tor-only mode |
+| **[nginx-cf-realip](https://github.com/RumenDamyanov/nginx-cf-realip)** | Automatic Cloudflare edge IP list fetcher for real client IP restoration |
+| **[nginx-gone](https://github.com/RumenDamyanov/nginx-gone)** | Return HTTP 410 Gone for permanently removed URIs |
 
 ---
 
