@@ -303,6 +303,20 @@ Other nginx dynamic modules we maintain:
 | **[nginx-cf-realip](https://github.com/RumenDamyanov/nginx-cf-realip)** | Automatic Cloudflare edge IP list fetcher for real client IP restoration |
 | **[nginx-gone](https://github.com/RumenDamyanov/nginx-gone)** | Return HTTP 410 Gone for permanently removed URIs |
 
+### Apache HTTP Server Versions
+
+All modules are also available for Apache httpd:
+
+| Module | Description |
+|--------|-------------|
+| **[apache-waf](https://github.com/RumenDamyanov/apache-waf)** | IP/CIDR-based access control with named lists |
+| **[apache-waf-api](https://github.com/RumenDamyanov/apache-waf-api)** | REST API for dynamic WAF IP list management |
+| **[apache-waf-feeds](https://github.com/RumenDamyanov/apache-waf-feeds)** | Automatic threat feed updater for apache-waf |
+| **[apache-waf-ui](https://github.com/RumenDamyanov/apache-waf-ui)** | Web management interface for apache-waf |
+| **[apache-torblocker](https://github.com/RumenDamyanov/apache-torblocker)** | Control access from Tor exit nodes |
+| **[apache-cf-realip](https://github.com/RumenDamyanov/apache-cf-realip)** | Cloudflare real IP restoration via `mod_remoteip` |
+| **[apache-gone](https://github.com/RumenDamyanov/apache-gone)** | Return HTTP 410 Gone for permanently removed URIs |
+
 ---
 
 ## Support the Project
